@@ -50,6 +50,18 @@ DefaultConfig = {
     'manage_downloads': True,
     # Embed all available subtitles to downloaded videos. Needs ffmpeg.
     'embed_subtitles': False,
+    # Number of seconds to sleep between requests during data extraction
+    'sleep_requests': 1.5,
+    # Number of seconds to sleep before each download.
+    # This is the minimum time to sleep when used along with --max-sleep-interval.
+    'sleep_interval': 60,
+    # Maximum number of seconds to sleep.
+    # Can only be used along with --min-sleep-interval
+    'max_sleep_interval': 90,
+    # Make all connections via IPv4
+    'force_ipv4': False,
+    # Make all connections via IPv6
+    'force_ipv6': False,
 }
 
 
@@ -311,6 +323,20 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['verbose'] = True
         else:
             self._ydl_opts['quiet'] = True
+
+        if self.my_config.sleep_requests:
+            self._ydl_opts['sleep-requests'] = self.my_config.sleep_requests
+
+        if self.my_config.sleep_interval:
+            self._ydl_opts['sleep-interval'] = self.my_config.sleep_interval
+            if self.my_config.max_sleep_interval:
+                self._ydl_opts['max-sleep-interval'] = self.my_config.max_sleep_interval
+
+        if self.my_config.force_ipv4 and not self.my_config.force_ipv6:
+            self._ydl_opts['force-ipv4'] = True
+        elif self.my_config.force_ipv6 and not self.my_config.force_ipv4:
+            self._ydl_opts['force-ipv6'] = True
+
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
         # Cache URL regexes from youtube-dl matches here, seed with youtube regex
